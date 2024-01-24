@@ -19,24 +19,24 @@ log_and_summarize "Installation de UFW..."
 apt-get install ufw -y
 ufw allow ssh
 ufw allow http
-ufw enable -y
+ufw enable 
 log_and_summarize "UFW installé et configuré."
 
-# # Modification du port SSH (ex. port 2222)
-# log_and_summarize "Changement du port SSH..."
-# sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
-# systemctl restart sshd
-# log_and_summarize "Port SSH changé en 2222."
+# Modification du port SSH (ex. port 2222)
+log_and_summarize "Changement du port SSH..."
+sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
+systemctl restart sshd
+log_and_summarize "Port SSH changé en 2222."
 
-# # Configuration de la politique de mot de passe
-# log_and_summarize "Configuration de la politique de mot de passe..."
-# # Modification du fichier de configuration PAM pour les mots de passe
-# PAM_PW_FILE="/etc/pam.d/common-password"
-# # Sauvegarde de l'ancienne configuration
-# cp $PAM_PW_FILE "$PAM_PW_FILE.bak"
-# # Configuration pour exiger un minimum de 8 caractères et au moins 1 caractère spécial
-# sed -i 's/pam_pwquality.so/& minlen=8 minclass=1/' $PAM_PW_FILE
-# log_and_summarize "Politique de mot de passe configurée. Minimum 8 caractères et 1 caractère spécial requis."
+# Configuration de la politique de mot de passe
+log_and_summarize "Configuration de la politique de mot de passe..."
+# Modification du fichier de configuration PAM pour les mots de passe
+PAM_PW_FILE="/etc/pam.d/common-password"
+# Sauvegarde de l'ancienne configuration
+cp $PAM_PW_FILE "$PAM_PW_FILE.bak"
+# Configuration pour exiger un minimum de 8 caractères et au moins 1 caractère spécial
+sed -i 's/pam_pwquality.so/& minlen=8 minclass=1/' $PAM_PW_FILE
+log_and_summarize "Politique de mot de passe configurée. Minimum 8 caractères et 1 caractère spécial requis."
 
 
 # # Création d'un utilisateur non-root avec des privilèges sudo
