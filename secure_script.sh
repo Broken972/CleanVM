@@ -103,7 +103,7 @@ log_and_summarize "Firejail installé et configuré pour le sandboxing de plusie
 log_and_summarize "Installation et configuration de Fail2Ban..."
 apt-get install fail2ban -y
 # Copie de la configuration par défaut pour la personnalisation
-cp /etc/fail2ban/jail.{conf,local}
+cp /etc/fail2ban/jail.local
 # Configuration de base de Fail2Ban dans jail.local
 cat << EOF > /etc/fail2ban/jail.local
 [DEFAULT]
@@ -128,36 +128,36 @@ systemctl restart fail2ban
 log_and_summarize "Fail2Ban configuré avec des règles personnalisées."
 
 
-# # Surveillance des fichiers système avec AIDE
-# log_and_summarize "Installation et initialisation de AIDE..."
-# apt-get install aide -y
-# # Initialisation de la base de données AIDE
-# aideinit
-# mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
-# log_and_summarize "Base de données AIDE initialisée."
-# # Configuration du fichier de configuration d'AIDE
-# AIDE_CONFIG="/etc/aide/aide.conf"
-# # Ajout de règles de surveillance personnalisées (exemple)
-# echo "## Règles personnalisées" >> $AIDE_CONFIG
-# echo "/etc Crontab Binaries = p+i+n+u+g+s+m+c+md5+sha1" >> $AIDE_CONFIG
-# echo "/var/log ImportantLogs = p+i+n+u+g+s+m+c+md5+sha1" >> $AIDE_CONFIG
-# # Mise à jour de la base de données AIDE pour inclure les nouvelles règles
-# aide --update
-# mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
-# # Planification des vérifications régulières avec cron
-# echo "0 3 * * * /usr/bin/aide --check" >> /etc/crontab
-# log_and_summarize "AIDE configuré avec des règles personnalisées et vérification planifiée."
-# # Fin de la section sur AIDE
+# Surveillance des fichiers système avec AIDE
+log_and_summarize "Installation et initialisation de AIDE..."
+apt-get install aide -y
+# Initialisation de la base de données AIDE
+aideinit
+mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+log_and_summarize "Base de données AIDE initialisée."
+# Configuration du fichier de configuration d'AIDE
+AIDE_CONFIG="/etc/aide/aide.conf"
+# Ajout de règles de surveillance personnalisées (exemple)
+echo "## Règles personnalisées" >> $AIDE_CONFIG
+echo "/etc Crontab Binaries = p+i+n+u+g+s+m+c+md5+sha1" >> $AIDE_CONFIG
+echo "/var/log ImportantLogs = p+i+n+u+g+s+m+c+md5+sha1" >> $AIDE_CONFIG
+# Mise à jour de la base de données AIDE pour inclure les nouvelles règles
+aide --update
+mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+# Planification des vérifications régulières avec cron
+echo "0 3 * * * /usr/bin/aide --check" >> /etc/crontab
+log_and_summarize "AIDE configuré avec des règles personnalisées et vérification planifiée."
+# Fin de la section sur AIDE
 
 
-# # Configuration des audits réguliers avec Lynis
-# log_and_summarize "Installation de Lynis pour les audits réguliers..."
-# apt-get install lynis -y
-# # Planification des audits réguliers avec cron
-# echo "0 2 * * 1 /usr/bin/lynis audit system >> /var/log/lynis-audit.log" >> /etc/crontab
-# log_and_summarize "Lynis installé et planifié pour des audits réguliers."
-# # Fin de la section sur Lynis
+# Configuration des audits réguliers avec Lynis
+log_and_summarize "Installation de Lynis pour les audits réguliers..."
+apt-get install lynis -y
+# Planification des audits réguliers avec cron
+echo "0 2 * * 1 /usr/bin/lynis audit system >> /var/log/lynis-audit.log" >> /etc/crontab
+log_and_summarize "Lynis installé et planifié pour des audits réguliers."
+# Fin de la section sur Lynis
 
 
-# # Fin du script
-# log_and_summarize "Script terminé."
+# Fin du script
+log_and_summarize "Script terminé."
