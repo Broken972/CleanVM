@@ -5,55 +5,55 @@ LOG_FILE="/var/log/myscript.log"
 SUMMARY_FILE="summary.txt"
 
 # Fonction pour écrire dans les fichiers de log et de résumé
-log_and_summarize() {
+log_and_summarizee() {
     echo "$(date): $1" | tee -a "$LOG_FILE" >> "$SUMMARY_FILE"
 }
 
 # Mise à jour du système
-log_and_summarize "Début de la mise à jour du système..."
+echo "Début de la mise à jour du système..."
 apt-get update && apt-get upgrade -y
-log_and_summarize "Mise à jour du système terminée."
+echo "Mise à jour du système terminée."
 
 # # Installation et configuration de UFW
-log_and_summarize "Installation de UFW..."
+echo "Installation de UFW..."
 apt-get install ufw -y
 ufw allow ssh
 ufw allow http
 ufw enable 
-log_and_summarize "UFW installé et configuré."
+echo "UFW installé et configuré."
 
 # Modification du port SSH (ex. port 2222)
-log_and_summarize "Changement du port SSH..."
+echo "Changement du port SSH..."
 sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
 systemctl restart sshd
-log_and_summarize "Port SSH changé en 2222."
+echo "Port SSH changé en 2222."
 
 # Configuration de la politique de mot de passe
-log_and_summarize "Configuration de la politique de mot de passe..."
+echo "Configuration de la politique de mot de passe..."
 # Modification du fichier de configuration PAM pour les mots de passe
 PAM_PW_FILE="/etc/pam.d/common-password"
 # Sauvegarde de l'ancienne configuration
 cp $PAM_PW_FILE "$PAM_PW_FILE.bak"
 # Configuration pour exiger un minimum de 8 caractères et au moins 1 caractère spécial
 sed -i 's/pam_pwquality.so/& minlen=8 minclass=1/' $PAM_PW_FILE
-log_and_summarize "Politique de mot de passe configurée. Minimum 8 caractères et 1 caractère spécial requis."
+echo "Politique de mot de passe configurée. Minimum 8 caractères et 1 caractère spécial requis."
 
 
 # # Création d'un utilisateur non-root avec des privilèges sudo
 NEW_USER="UtilisateurX"
-log_and_summarize "Création de l'utilisateur $NEW_USER..."
+echo "Création de l'utilisateur $NEW_USER..."
 adduser --disabled-password --gecos "" --allow-bad-names $NEW_USER
 adduser $NEW_USER sudo
-log_and_summarize "Utilisateur $NEW_USER créé et ajouté au groupe sudo."
+echo "Utilisateur $NEW_USER créé et ajouté au groupe sudo."
 
 # # Désactivation de la connexion SSH root
-log_and_summarize "Désactivation de la connexion SSH root..."
+echo "Désactivation de la connexion SSH root..."
 sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 systemctl restart sshd
-log_and_summarize "Connexion SSH root désactivée."
+echo "Connexion SSH root désactivée."
 
 # Configuration des logs avec auditd pour surveiller plus de changements
-log_and_summarize "Installation et configuration avancée de auditd..."
+echo "Installation et configuration avancée de auditd..."
 # Installation de auditd
 apt-get install auditd -y
 # Configuration avancée de auditd
@@ -75,32 +75,32 @@ echo "-a always,exit -F path=/usr/bin/chmod -F perm=x -F auid>=1000 -F auid!=429
 echo "-w /etc/security/ -p wa -k security" >> $AUDITD_RULES_FILE
 # Redémarrage du service auditd pour appliquer les changements
 systemctl restart auditd
-log_and_summarize "auditd installé et configuré avec des règles avancées."
+echo "auditd installé et configuré avec des règles avancées."
 
 
 # Renforcement de SSH
-log_and_summarize "Renforcement de la configuration SSH..."
+echo "Renforcement de la configuration SSH..."
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
 systemctl restart sshd
-log_and_summarize "Configuration SSH renforcée."
+echo "Configuration SSH renforcée."
 
 # Sandboxing des applications avec Firejail
-log_and_summarize "Installation de Firejail pour le sandboxing des applications..."
+echo "Installation de Firejail pour le sandboxing des applications..."
 apt-get install firejail -y
 # Sandboxing de Firefox
 echo "firejail firefox" > /usr/local/bin/firefox-sandboxed
 chmod +x /usr/local/bin/firefox-sandboxed
-log_and_summarize "Firefox configuré pour s'exécuter dans Firejail."
+echo "Firefox configuré pour s'exécuter dans Firejail."
 # Sandboxing avec VLC
 echo "firejail vlc" > /usr/local/bin/vlc-sandboxed
 chmod +x /usr/local/bin/vlc-sandboxed
-log_and_summarize "VLC configuré pour s'exécuter dans Firejail."
-log_and_summarize "Firejail installé et configuré pour le sandboxing de plusieurs applications."
+echo "VLC configuré pour s'exécuter dans Firejail."
+echo "Firejail installé et configuré pour le sandboxing de plusieurs applications."
 
 
 # Configuration de Fail2Ban pour la prévention d'intrusion
-log_and_summarize "Installation et configuration de Fail2Ban..."
+echo "Installation et configuration de Fail2Ban..."
 apt-get install fail2ban -y
 # Copie de la configuration par défaut pour la personnalisation
 cp /etc/fail2ban/jail.local
@@ -125,16 +125,16 @@ bantime = 1h
 EOF
 # Redémarrage du service Fail2Ban pour appliquer les changements
 systemctl restart fail2ban
-log_and_summarize "Fail2Ban configuré avec des règles personnalisées."
+echo "Fail2Ban configuré avec des règles personnalisées."
 
 
 # Surveillance des fichiers système avec AIDE
-log_and_summarize "Installation et initialisation de AIDE..."
+echo "Installation et initialisation de AIDE..."
 apt-get install aide -y
 # Initialisation de la base de données AIDE
 aideinit
 mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
-log_and_summarize "Base de données AIDE initialisée."
+echo "Base de données AIDE initialisée."
 # Configuration du fichier de configuration d'AIDE
 AIDE_CONFIG="/etc/aide/aide.conf"
 # Ajout de règles de surveillance personnalisées (exemple)
@@ -146,18 +146,21 @@ aide --update
 mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 # Planification des vérifications régulières avec cron
 echo "0 3 * * * /usr/bin/aide --check" >> /etc/crontab
-log_and_summarize "AIDE configuré avec des règles personnalisées et vérification planifiée."
+echo "AIDE configuré avec des règles personnalisées et vérification planifiée."
 # Fin de la section sur AIDE
 
 
 # Configuration des audits réguliers avec Lynis
-log_and_summarize "Installation de Lynis pour les audits réguliers..."
+echo "Installation de Lynis pour les audits réguliers..."
 apt-get install lynis -y
 # Planification des audits réguliers avec cron
 echo "0 2 * * 1 /usr/bin/lynis audit system >> /var/log/lynis-audit.log" >> /etc/crontab
-log_and_summarize "Lynis installé et planifié pour des audits réguliers."
+echo "Lynis installé et planifié pour des audits réguliers."
 # Fin de la section sur Lynis
 
 
-# Fin du script
-log_and_summarize "Script terminé."
+
+# Fin du script dans la console
+
+
+echo "Script terminé."
