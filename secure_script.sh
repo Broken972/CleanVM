@@ -42,7 +42,7 @@ log_and_summarize "Politique de mot de passe configurée. Minimum 8 caractères 
 # # Création d'un utilisateur non-root avec des privilèges sudo
 NEW_USER="UtilisateurX"
 log_and_summarize "Création de l'utilisateur $NEW_USER..."
-adduser --disabled-password --gecos "" $NEW_USER
+adduser --disabled-password --gecos "" --allow-bad-names $NEW_USER
 adduser $NEW_USER sudo
 log_and_summarize "Utilisateur $NEW_USER créé et ajouté au groupe sudo."
 
@@ -52,56 +52,56 @@ sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 systemctl restart sshd
 log_and_summarize "Connexion SSH root désactivée."
 
-# # Configuration des logs avec auditd pour surveiller plus de changements
-# log_and_summarize "Installation et configuration avancée de auditd..."
-# # Installation de auditd
-# apt-get install auditd -y
-# # Configuration avancée de auditd
-# AUDITD_RULES_FILE="/etc/audit/audit.rules"
-# # Sauvegarde de l'ancienne configuration
-# cp $AUDITD_RULES_FILE "$AUDITD_RULES_FILE.bak"
-# # Surveiller les changements dans les fichiers sensibles
-# echo "-w /etc/passwd -p wa -k identity" >> $AUDITD_RULES_FILE
-# echo "-w /etc/shadow -p wa -k identity" >> $AUDITD_RULES_FILE
-# echo "-w /etc/group -p wa -k identity" >> $AUDITD_RULES_FILE
-# echo "-w /etc/gshadow -p wa -k identity" >> $AUDITD_RULES_FILE
-# echo "-w /etc/sudoers -p wa -k sudo" >> $AUDITD_RULES_FILE
-# # Surveiller l'utilisation des commandes importantes
-# echo "-a always,exit -F path=/bin/vi -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
-# echo "-a always,exit -F path=/usr/bin/vim -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
-# echo "-a always,exit -F path=/usr/bin/nano -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
-# echo "-a always,exit -F path=/usr/bin/chmod -F perm=x -F auid>=1000 -F auid!=4294967295 -k permission_change" >> $AUDITD_RULES_FILE
-# # Surveiller les modifications de la configuration de sécurité
-# echo "-w /etc/security/ -p wa -k security" >> $AUDITD_RULES_FILE
-# # Redémarrage du service auditd pour appliquer les changements
-# systemctl restart auditd
-# log_and_summarize "auditd installé et configuré avec des règles avancées."
+# Configuration des logs avec auditd pour surveiller plus de changements
+log_and_summarize "Installation et configuration avancée de auditd..."
+# Installation de auditd
+apt-get install auditd -y
+# Configuration avancée de auditd
+AUDITD_RULES_FILE="/etc/audit/audit.rules"
+# Sauvegarde de l'ancienne configuration
+cp $AUDITD_RULES_FILE "$AUDITD_RULES_FILE.bak"
+# Surveiller les changements dans les fichiers sensibles
+echo "-w /etc/passwd -p wa -k identity" >> $AUDITD_RULES_FILE
+echo "-w /etc/shadow -p wa -k identity" >> $AUDITD_RULES_FILE
+echo "-w /etc/group -p wa -k identity" >> $AUDITD_RULES_FILE
+echo "-w /etc/gshadow -p wa -k identity" >> $AUDITD_RULES_FILE
+echo "-w /etc/sudoers -p wa -k sudo" >> $AUDITD_RULES_FILE
+# Surveiller l'utilisation des commandes importantes
+echo "-a always,exit -F path=/bin/vi -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
+echo "-a always,exit -F path=/usr/bin/vim -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
+echo "-a always,exit -F path=/usr/bin/nano -F perm=x -F auid>=1000 -F auid!=4294967295 -k editing" >> $AUDITD_RULES_FILE
+echo "-a always,exit -F path=/usr/bin/chmod -F perm=x -F auid>=1000 -F auid!=4294967295 -k permission_change" >> $AUDITD_RULES_FILE
+# Surveiller les modifications de la configuration de sécurité
+echo "-w /etc/security/ -p wa -k security" >> $AUDITD_RULES_FILE
+# Redémarrage du service auditd pour appliquer les changements
+systemctl restart auditd
+log_and_summarize "auditd installé et configuré avec des règles avancées."
 
 
-# # Configuration avancée de SELinux pour d'autres aspects du système
-# log_and_summarize "Début de la configuration avancée de SELinux pour des aspects non-web..."
-# # Activer SELinux en mode Enforcing
-# sed -i 's/SELINUX=.*$/SELINUX=enforcing/' /etc/selinux/config
-# setenforce 1
-# log_and_summarize "SELinux mis en mode Enforcing."
-# # Sécurisation des services d'authentification
-# # Configurer SELinux pour surveiller les accès au service SSH
-# semanage fcontext -a -t sshd_etc_t "/etc/ssh/sshd_config"
-# restorecon -v /etc/ssh/sshd_config
-# # Gestion des accès utilisateurs
-# # Définir des politiques pour limiter l'accès utilisateur à certains dossiers
-# semanage fcontext -a -t user_home_dir_t "/home/restricted_user(/.*)?"
-# restorecon -R /home/restricted_user
-# # Sécurisation des fichiers de configuration système
-# # Appliquer un contexte de sécurité aux fichiers de configuration de réseau
-# semanage fcontext -a -t etc_t "/etc/sysconfig/network(/.*)?"
-# restorecon -R /etc/sysconfig/network
-# # Configuration des booléens SELinux pour des services spécifiques
-# # Empêcher les utilisateurs non privilégiés de mapper la mémoire dans d'autres processus
-# setsebool -P allow_ptrace 0
-# # Vérification de la configuration
-# sestatus
-# log_and_summarize "Configuration avancée de SELinux pour des aspects non-web terminée."
+# Configuration avancée de SELinux pour d'autres aspects du système
+log_and_summarize "Début de la configuration avancée de SELinux pour des aspects non-web..."
+# Activer SELinux en mode Enforcing
+sed -i 's/SELINUX=.*$/SELINUX=enforcing/' /etc/selinux/config
+setenforce 1
+log_and_summarize "SELinux mis en mode Enforcing."
+# Sécurisation des services d'authentification
+# Configurer SELinux pour surveiller les accès au service SSH
+semanage fcontext -a -t sshd_etc_t "/etc/ssh/sshd_config"
+restorecon -v /etc/ssh/sshd_config
+# Gestion des accès utilisateurs
+# Définir des politiques pour limiter l'accès utilisateur à certains dossiers
+semanage fcontext -a -t user_home_dir_t "/home/restricted_user(/.*)?"
+restorecon -R /home/restricted_user
+# Sécurisation des fichiers de configuration système
+# Appliquer un contexte de sécurité aux fichiers de configuration de réseau
+semanage fcontext -a -t etc_t "/etc/sysconfig/network(/.*)?"
+restorecon -R /etc/sysconfig/network
+# Configuration des booléens SELinux pour des services spécifiques
+# Empêcher les utilisateurs non privilégiés de mapper la mémoire dans d'autres processus
+setsebool -P allow_ptrace 0
+# Vérification de la configuration
+sestatus
+log_and_summarize "Configuration avancée de SELinux pour des aspects non-web terminée."
 
 
 # # Intégration d'un système de détection d'intrusion (Snort)
