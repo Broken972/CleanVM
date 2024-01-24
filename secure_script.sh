@@ -78,54 +78,28 @@ systemctl restart auditd
 log_and_summarize "auditd installé et configuré avec des règles avancées."
 
 
-# Configuration avancée de SELinux pour d'autres aspects du système
-log_and_summarize "Début de la configuration avancée de SELinux pour des aspects non-web..."
-# Activer SELinux en mode Enforcing
-sed -i 's/SELINUX=.*$/SELINUX=enforcing/' /etc/selinux/config
-setenforce 1
-log_and_summarize "SELinux mis en mode Enforcing."
-# Sécurisation des services d'authentification
-# Configurer SELinux pour surveiller les accès au service SSH
-semanage fcontext -a -t sshd_etc_t "/etc/ssh/sshd_config"
-restorecon -v /etc/ssh/sshd_config
-# Gestion des accès utilisateurs
-# Définir des politiques pour limiter l'accès utilisateur à certains dossiers
-semanage fcontext -a -t user_home_dir_t "/home/restricted_user(/.*)?"
-restorecon -R /home/restricted_user
-# Sécurisation des fichiers de configuration système
-# Appliquer un contexte de sécurité aux fichiers de configuration de réseau
-semanage fcontext -a -t etc_t "/etc/sysconfig/network(/.*)?"
-restorecon -R /etc/sysconfig/network
-# Configuration des booléens SELinux pour des services spécifiques
-# Empêcher les utilisateurs non privilégiés de mapper la mémoire dans d'autres processus
-setsebool -P allow_ptrace 0
-# Vérification de la configuration
-sestatus
-log_and_summarize "Configuration avancée de SELinux pour des aspects non-web terminée."
+# Intégration d'un système de détection d'intrusion (Snort)
+log_and_summarize "Installation du système de détection d'intrusion Snort..."
+# Installation de Snort
+apt-get install snort -y
+# Configuration de base de Snort
+SNORT_CONFIG="/etc/snort/snort.conf"
+# Sauvegarde de la configuration d'origine
+cp $SNORT_CONFIG "$SNORT_CONFIG.bak"
+# Configuration de l'interface réseau (à remplacer par l'interface appropriée)
+sed -i 's/ipvar HOME_NET any/ipvar HOME_NET [127.0.0.1\/255.255.255.0]/' $SNORT_CONFIG
+# Téléchargement des règles de détection 
+snort-rules-update
+# Vérification de la configuration Snort
+snort -T -c $SNORT_CONFIG
+log_and_summarize "Snort installé et configuré."
 
-
-# # Intégration d'un système de détection d'intrusion (Snort)
-# log_and_summarize "Installation du système de détection d'intrusion Snort..."
-# # Installation de Snort
-# apt-get install snort -y
-# # Configuration de base de Snort
-# SNORT_CONFIG="/etc/snort/snort.conf"
-# # Sauvegarde de la configuration d'origine
-# cp $SNORT_CONFIG "$SNORT_CONFIG.bak"
-# # Configuration de l'interface réseau (à remplacer par l'interface appropriée)
-# sed -i 's/ipvar HOME_NET any/ipvar HOME_NET [127.0.0.1\/255.255.255.0]/' $SNORT_CONFIG
-# # Téléchargement des règles de détection 
-# snort-rules-update
-# # Vérification de la configuration Snort
-# snort -T -c $SNORT_CONFIG
-# log_and_summarize "Snort installé et configuré."
-
-# # Renforcement de SSH
-# log_and_summarize "Renforcement de la configuration SSH..."
-# sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-# sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
-# systemctl restart sshd
-# log_and_summarize "Configuration SSH renforcée."
+# Renforcement de SSH
+log_and_summarize "Renforcement de la configuration SSH..."
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
+systemctl restart sshd
+log_and_summarize "Configuration SSH renforcée."
 
 # # Sandboxing des applications avec Firejail
 # log_and_summarize "Installation de Firejail pour le sandboxing des applications..."
