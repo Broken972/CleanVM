@@ -1,0 +1,24 @@
+# Volatility 3
+function volatility3() {
+  docker run --rm -v $PWD:/dumps -v ~/.vol3_cache:/home/root/.cache -v ~/Desktop/Shared/Kali/vol3_profiles:/tmp -ti volatility3 vol -s /tmp "$@"
+}
+
+# Volatility 2
+function volatility2() {
+  docker run --rm --user=1000:1000 -v $(pwd):/dumps -ti phocean/volatility "$@"
+}
+
+
+git config --global user.name "Broken972"
+git config --global user.email "parfaite.ppro@gmail.com"
+
+Alors j'ai besoin que tu me creer un script tres precis et en meme temps inovent pour une machine sous debian :
+
+ton but et de 
+-mettre a jour le sisteme et peut etre OS
+-installer et configurer UFW de maniere securise avec en ouverture juste ssh et web changer le port du ssh pour 
+-Configurer une politique de mot de passe pour les nouveau compte 
+-Creer un utilisateur non-root avec des privilege sudo
+-desactiver le SSH root
+-configurer des logs"auditd"
+-Configuration de SELinux
