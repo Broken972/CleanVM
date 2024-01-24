@@ -15,12 +15,12 @@ apt-get update && apt-get upgrade -y
 log_and_summarize "Mise à jour du système terminée."
 
 # # Installation et configuration de UFW
-# log_and_summarize "Installation de UFW..."
-# apt-get install ufw -y
-# ufw allow ssh
-# ufw allow http
-# ufw enable
-# log_and_summarize "UFW installé et configuré."
+log_and_summarize "Installation de UFW..."
+apt-get install ufw -y
+ufw allow ssh
+ufw allow http
+ufw enable
+log_and_summarize "UFW installé et configuré."
 
 # # Modification du port SSH (ex. port 2222)
 # log_and_summarize "Changement du port SSH..."
