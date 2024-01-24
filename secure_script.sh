@@ -78,22 +78,6 @@ systemctl restart auditd
 log_and_summarize "auditd installé et configuré avec des règles avancées."
 
 
-# Intégration d'un système de détection d'intrusion (Snort)
-log_and_summarize "Installation du système de détection d'intrusion Snort..."
-# Installation de Snort
-apt-get install snort -y
-# Configuration de base de Snort
-SNORT_CONFIG="/etc/snort/snort.conf"
-# Sauvegarde de la configuration d'origine
-cp $SNORT_CONFIG "$SNORT_CONFIG.bak"
-# Configuration de l'interface réseau (à remplacer par l'interface appropriée)
-sed -i 's/ipvar HOME_NET any/ipvar HOME_NET [127.0.0.1\/255.255.255.0]/' $SNORT_CONFIG
-# Téléchargement des règles de détection 
-snort-rules-update
-# Vérification de la configuration Snort
-snort -T -c $SNORT_CONFIG
-log_and_summarize "Snort installé et configuré."
-
 # Renforcement de SSH
 log_and_summarize "Renforcement de la configuration SSH..."
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
@@ -101,47 +85,47 @@ sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication n
 systemctl restart sshd
 log_and_summarize "Configuration SSH renforcée."
 
-# # Sandboxing des applications avec Firejail
-# log_and_summarize "Installation de Firejail pour le sandboxing des applications..."
-# apt-get install firejail -y
-# # Sandboxing de Firefox
-# echo "firejail firefox" > /usr/local/bin/firefox-sandboxed
-# chmod +x /usr/local/bin/firefox-sandboxed
-# log_and_summarize "Firefox configuré pour s'exécuter dans Firejail."
-# # Sandboxing avec VLC
-# echo "firejail vlc" > /usr/local/bin/vlc-sandboxed
-# chmod +x /usr/local/bin/vlc-sandboxed
-# log_and_summarize "VLC configuré pour s'exécuter dans Firejail."
-# log_and_summarize "Firejail installé et configuré pour le sandboxing de plusieurs applications."
+# Sandboxing des applications avec Firejail
+log_and_summarize "Installation de Firejail pour le sandboxing des applications..."
+apt-get install firejail -y
+# Sandboxing de Firefox
+echo "firejail firefox" > /usr/local/bin/firefox-sandboxed
+chmod +x /usr/local/bin/firefox-sandboxed
+log_and_summarize "Firefox configuré pour s'exécuter dans Firejail."
+# Sandboxing avec VLC
+echo "firejail vlc" > /usr/local/bin/vlc-sandboxed
+chmod +x /usr/local/bin/vlc-sandboxed
+log_and_summarize "VLC configuré pour s'exécuter dans Firejail."
+log_and_summarize "Firejail installé et configuré pour le sandboxing de plusieurs applications."
 
 
-# # Configuration de Fail2Ban pour la prévention d'intrusion
-# log_and_summarize "Installation et configuration de Fail2Ban..."
-# apt-get install fail2ban -y
-# # Copie de la configuration par défaut pour la personnalisation
-# cp /etc/fail2ban/jail.{conf,local}
-# # Configuration de base de Fail2Ban dans jail.local
-# cat << EOF > /etc/fail2ban/jail.local
-# [DEFAULT]
-# # "bantime" est la durée pendant laquelle une IP est bannie.
-# bantime = 10m
-# # "findtime" est la durée pendant laquelle Fail2Ban va regarder les tentatives de connexion.
-# findtime = 10m
-# # "maxretry" est le nombre de tentatives avant bannissement.
-# maxretry = 5
-# # Configuration pour SSH
-# [sshd]
-# enabled = true
-# port = ssh
-# filter = sshd
-# logpath = /var/log/auth.log
-# maxretry = 3
-# bantime = 1h
-# # Ajouter ici d'autres configurations spécifiques
-# EOF
-# # Redémarrage du service Fail2Ban pour appliquer les changements
-# systemctl restart fail2ban
-# log_and_summarize "Fail2Ban configuré avec des règles personnalisées."
+# Configuration de Fail2Ban pour la prévention d'intrusion
+log_and_summarize "Installation et configuration de Fail2Ban..."
+apt-get install fail2ban -y
+# Copie de la configuration par défaut pour la personnalisation
+cp /etc/fail2ban/jail.{conf,local}
+# Configuration de base de Fail2Ban dans jail.local
+cat << EOF > /etc/fail2ban/jail.local
+[DEFAULT]
+# "bantime" est la durée pendant laquelle une IP est bannie.
+bantime = 10m
+# "findtime" est la durée pendant laquelle Fail2Ban va regarder les tentatives de connexion.
+findtime = 10m
+# "maxretry" est le nombre de tentatives avant bannissement.
+maxretry = 5
+# Configuration pour SSH
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 3
+bantime = 1h
+# Ajouter ici d'autres configurations spécifiques
+EOF
+# Redémarrage du service Fail2Ban pour appliquer les changements
+systemctl restart fail2ban
+log_and_summarize "Fail2Ban configuré avec des règles personnalisées."
 
 
 # # Surveillance des fichiers système avec AIDE
