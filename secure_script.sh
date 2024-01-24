@@ -40,17 +40,17 @@ log_and_summarize "Politique de mot de passe configurée. Minimum 8 caractères 
 
 
 # # Création d'un utilisateur non-root avec des privilèges sudo
-# NEW_USER="UtilisateurX"
-# log_and_summarize "Création de l'utilisateur $NEW_USER..."
-# adduser --disabled-password --gecos "" $NEW_USER
-# adduser $NEW_USER sudo
-# log_and_summarize "Utilisateur $NEW_USER créé et ajouté au groupe sudo."
+NEW_USER="UtilisateurX"
+log_and_summarize "Création de l'utilisateur $NEW_USER..."
+adduser --disabled-password --gecos "" $NEW_USER
+adduser $NEW_USER sudo
+log_and_summarize "Utilisateur $NEW_USER créé et ajouté au groupe sudo."
 
 # # Désactivation de la connexion SSH root
-# log_and_summarize "Désactivation de la connexion SSH root..."
-# sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-# systemctl restart sshd
-# log_and_summarize "Connexion SSH root désactivée."
+log_and_summarize "Désactivation de la connexion SSH root..."
+sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+systemctl restart sshd
+log_and_summarize "Connexion SSH root désactivée."
 
 # # Configuration des logs avec auditd pour surveiller plus de changements
 # log_and_summarize "Installation et configuration avancée de auditd..."
